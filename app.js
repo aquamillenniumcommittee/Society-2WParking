@@ -1,18 +1,24 @@
-const { createClient } = window.supabase;
-const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-
-const $ = id => document.getElementById(id);
+let supabaseClient = null;
 let member = null;
 let selectedPending = null;
 let poller = null;
 
+const $ = id => document.getElementById(id);
+
 function normalizeCode(v){ return (v || '').toUpperCase().replace(/[^A-Z0-9]/g,''); }
 function showMsg(text, ok=false){ $('loginMsg').textContent=text; $('loginMsg').style.color=ok?'#166534':'#b91c1c'; }
+function getClient(){
+  if (!window.supabase || !window.supabase.createClient) throw new Error('Supabase library did not load. Check your internet connection or try Chrome/Safari private browsing.');
+  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('Website configuration is missing.');
+  if (!supabaseClient) supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  return supabaseClient;
+}
 
 async function login(flat, code){
-  const {data,error}=await supabase.rpc('member_login',{p_flat:flat,p_code:normalizeCode(code)});
-  if(error) throw error;
-  if(!data.ok) throw new Error(data.message);
+  const sb=getClient();
+  const {data,error}=await sb.rpc('member_login',{p_flat:flat,p_code:normalizeCode(code)});
+  if(error) throw new Error(`Database error: ${error.message}`);
+  if(!data || !data.ok) throw new Error(data?.message || 'Invalid flat number or access code.');
   member={flat:data.flat,code:normalizeCode(code),...data};
   sessionStorage.setItem('parkingMember',JSON.stringify(member));
   renderMember(data);
@@ -37,9 +43,7 @@ function renderMember(d){
   if(d.pre_allocated_slot || d.selected_slot){
     $('allocatedCard').classList.remove('hidden');
     $('mySlot').textContent=d.pre_allocated_slot || d.selected_slot;
-    $('allocationText').textContent=d.pre_allocated_slot
-      ? 'This flat has a pre-allocated parking slot.'
-      : 'Your selected slot is locked and confirmed.';
+    $('allocationText').textContent=d.pre_allocated_slot ? 'This flat has a pre-allocated parking slot.' : 'Your selected slot is locked and confirmed.';
   }else{
     $('allocatedCard').classList.add('hidden');
     if(d.paused) $('memberStatus').textContent='Please wait. Selection is paused.';
@@ -51,12 +55,14 @@ function renderMember(d){
 
 async function refresh(){
   if(!member) return;
+  const sb=getClient();
   const [statusRes,slotsRes]=await Promise.all([
-    supabase.rpc('member_login',{p_flat:member.flat,p_code:member.code}),
-    supabase.rpc('public_slots')
+    sb.rpc('member_login',{p_flat:member.flat,p_code:member.code}),
+    sb.rpc('public_slots')
   ]);
-  if(statusRes.error) throw statusRes.error;
-  if(!statusRes.data.ok) throw new Error(statusRes.data.message);
+  if(statusRes.error) throw new Error(`Status error: ${statusRes.error.message}`);
+  if(slotsRes.error) throw new Error(`Slot board error: ${slotsRes.error.message}`);
+  if(!statusRes.data?.ok) throw new Error(statusRes.data?.message || 'Could not read member status.');
   member={...member,...statusRes.data};
   renderMember(statusRes.data);
   renderSlots(slotsRes.data || []);
@@ -75,42 +81,37 @@ function renderSlots(slots){
     $('slotList').appendChild(div);
   });
 }
-
-function openConfirm(slot){
-  selectedPending=slot;
-  $('confirmSlot').textContent=slot;
-  $('confirmModal').classList.remove('hidden');
-}
-function closeConfirm(){selectedPending=null;$('confirmModal').classList.add('hidden');}
+function openConfirm(slot){ selectedPending=slot; $('confirmSlot').textContent=slot; $('confirmModal').classList.remove('hidden'); }
+function closeConfirm(){ selectedPending=null; $('confirmModal').classList.add('hidden'); }
 
 async function confirmSelection(){
   if(!selectedPending||!member) return;
   const btn=$('confirmSelect'); btn.disabled=true; btn.textContent='Allocating…';
   try{
-    const {data,error}=await supabase.rpc('select_parking_slot',{p_flat:member.flat,p_code:member.code,p_slot:selectedPending});
-    if(error) throw error;
-    if(!data.ok){ alert(data.message || 'Selection failed.'); return; }
-    closeConfirm();
-    await refresh();
-    alert(`Allocation confirmed: ${data.slot}`);
+    const sb=getClient();
+    const {data,error}=await sb.rpc('select_parking_slot',{p_flat:member.flat,p_code:member.code,p_slot:selectedPending});
+    if(error) throw new Error(`Allocation error: ${error.message}`);
+    if(!data?.ok) throw new Error(data?.message || 'Selection failed.');
+    closeConfirm(); await refresh(); alert(`Allocation confirmed: ${data.slot}`);
   }catch(e){ alert(e.message || 'Could not complete allocation.'); }
   finally{btn.disabled=false;btn.textContent='Confirm allocation';}
 }
 
 $('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault(); showMsg('Opening…',true);
+  e.preventDefault(); showMsg('Connecting…',true);
   try{ await login($('flat').value.trim(),$('code').value.trim()); }
   catch(err){ showMsg(err.message || 'Could not log in.'); }
 });
 $('logoutBtn').onclick=logout;
 $('cancelConfirm').onclick=closeConfirm;
 $('confirmSelect').onclick=confirmSelection;
-
-function startPolling(){stopPolling();poller=setInterval(()=>refresh().catch(()=>{}),4000)}
+function startPolling(){stopPolling();poller=setInterval(()=>refresh().catch(err=>console.warn(err)),4000)}
 function stopPolling(){if(poller){clearInterval(poller);poller=null}}
 
 (async function init(){
-  if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('YOUR-PROJECT')) return;
-  const saved=sessionStorage.getItem('parkingMember');
-  if(saved){ try{ member=JSON.parse(saved); renderMember(member); await refresh(); startPolling(); }catch(e){ logout(); } }
+  try{
+    getClient();
+    const saved=sessionStorage.getItem('parkingMember');
+    if(saved){ member=JSON.parse(saved); renderMember(member); await refresh(); startPolling(); }
+  }catch(e){ console.warn(e); }
 })();

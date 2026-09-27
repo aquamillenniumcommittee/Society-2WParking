@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Parking Admin</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="topbar"><div><div class="eyebrow">ADMIN</div><h1>Parking Allocation Dashboard</h1></div><a class="admin-link" href="index.html">Member page</a></header>
+<main class="container">
+<section id="adminLogin" class="card"><h2>Admin login</h2><p class="muted">Use the administrator account created in Supabase Authentication.</p>
+<form id="adminLoginForm"><label>Email<input id="adminEmail" type="email" required></label><label>Password<input id="adminPassword" type="password" required></label><button class="primary">Sign in</button><div id="adminMsg" class="message"></div></form></section>
+<section id="dashboard" class="hidden">
+<div class="stats">
+<div class="stat"><span>Current index</span><strong id="dashCurrent">—</strong></div>
+<div class="stat"><span>Available slots</span><strong id="dashAvailable">—</strong></div>
+<div class="stat"><span>Status</span><strong id="dashPaused">—</strong></div>
+</div>
+<div class="card">
+<div class="hero"><div><h2>Controls</h2><p class="muted">Pause before making corrections. Undo reverses the most recent member selection.</p></div><div><button id="pauseBtn" class="secondary">Pause</button> <button id="undoBtn" class="secondary">Undo last</button> <button id="signoutBtn" class="secondary">Sign out</button></div></div>
+</div>
+<div class="card"><h2>Allocation register</h2><div id="register" style="overflow:auto"></div></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="admin.js"></script>
+</body></html>

@@ -1,6 +1,8 @@
 let supabaseClient = null;
 let timer=null;
 const $=id=>document.getElementById(id);
+function formatISTDate(value){ return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date(value)); }
+function formatISTTime(value){ return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}).format(new Date(value)); }
 function msg(t,ok=false){$('adminMsg').textContent=t;$('adminMsg').style.color=ok?'#166534':'#b91c1c';}
 function getClient(){
   if(!window.supabase || !window.supabase.createClient) throw new Error('Supabase library did not load. Check your internet connection or try Chrome/Safari private browsing.');
@@ -23,7 +25,7 @@ async function loadDashboard(){
   $('dashAvailable').textContent=slots.filter(x=>x.status==='available').length;
   $('dashPaused').textContent=state.is_paused?'PAUSED':'LIVE';
   $('pauseBtn').textContent=state.is_paused?'Resume':'Pause';
-  $('register').innerHTML=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:9px">Index</th><th style="text-align:left;padding:9px">Flat</th><th style="text-align:left;padding:9px">Slot</th><th style="text-align:left;padding:9px">Type</th><th style="text-align:left;padding:9px">Time</th></tr></thead><tbody>${allocs.map(a=>`<tr><td style="padding:9px;border-top:1px solid #eee">${a.selection_index}</td><td style="padding:9px;border-top:1px solid #eee">${a.flat_number}</td><td style="padding:9px;border-top:1px solid #eee">${a.slot_number}</td><td style="padding:9px;border-top:1px solid #eee">${a.allocation_type}</td><td style="padding:9px;border-top:1px solid #eee">${new Date(a.allocated_at).toLocaleString()}</td></tr>`).join('')}</tbody></table>`;
+  $('register').innerHTML=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:9px">Index</th><th style="text-align:left;padding:9px">Flat</th><th style="text-align:left;padding:9px">Slot</th><th style="text-align:left;padding:9px">Type</th><th style="text-align:left;padding:9px">Date</th><th style="text-align:left;padding:9px">Time</th></tr></thead><tbody>${allocs.map(a=>`<tr><td style="padding:9px;border-top:1px solid #eee">${a.selection_index}</td><td style="padding:9px;border-top:1px solid #eee">${a.flat_number}</td><td style="padding:9px;border-top:1px solid #eee">${a.slot_number}</td><td style="padding:9px;border-top:1px solid #eee">${a.allocation_type}</td><td style="padding:9px;border-top:1px solid #eee">${formatISTDate(a.allocated_at)}</td><td style="padding:9px;border-top:1px solid #eee">${formatISTTime(a.allocated_at)}</td></tr>`).join('')}</tbody></table>`;
 }
 $('adminLoginForm').addEventListener('submit',async e=>{
   e.preventDefault();

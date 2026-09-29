@@ -89,13 +89,25 @@
 </main>
 
 <div id="confirmModal" class="modal hidden">
-  <div class="modal-box">
-    <h2>Confirm slot</h2>
-    <p>Allocate <strong id="confirmSlot">—</strong> to your flat?</p>
-    <p class="muted">This action immediately locks the slot and moves the queue to the next eligible member.</p>
+  <div class="modal-box terms-box">
+    <h2>Confirm parking slot</h2>
+    <p>Selected slot: <strong id="confirmSlot">—</strong></p>
+    <div class="terms-content">
+      <h3>Terms &amp; Conditions – 2-Wheeler Parking Slot Selection</h3>
+      <ol>
+        <li><strong>Personal Selection:</strong> I confirm that I have personally selected the 2-Wheeler Parking Slot allotted/selected by me, with full knowledge and understanding of the location and circumstances of the selected slot.</li>
+        <li><strong>Voluntary Selection:</strong> I confirm that the selection has been made voluntarily, at my own discretion and with full understanding of my decision.</li>
+        <li><strong>Understanding of Location:</strong> I confirm that I have had the opportunity to inspect and/or understand the location, position and circumstances of the selected parking slot before making and confirming my selection.</li>
+        <li><strong>Responsibility for Selection:</strong> I acknowledge and accept that the responsibility for the parking slot selected by me rests solely with me.</li>
+        <li><strong>No Liability for Consequences of Selection:</strong> I acknowledge that Aqua Millennium Housing Society / Managing Committee, its office bearers, representatives, or any individual associated with the parking slot selection process shall not be held responsible or liable for any consequence, inconvenience, difficulty, concern or issue arising from or relating to the parking slot selected by me.</li>
+        <li><strong>No Claim or Dispute Regarding Selection:</strong> I agree that I shall not raise any claim, objection or dispute against Aqua Millennium Housing Society / Managing Committee, its office bearers, representatives, or any individual associated with the parking slot selection process solely on account of my selection of the parking slot.</li>
+        <li><strong>Acknowledgement and Acceptance:</strong> By clicking “I Agree &amp; Confirm Selection”, I confirm that I have read, understood and voluntarily accepted all the above Terms &amp; Conditions and that the parking slot selection is being made by me with full knowledge and acceptance of these terms.</li>
+      </ol>
+    </div>
+    <label class="agree-check"><input id="agreeTerms" type="checkbox"> <span>I have read, understood and agree to the above Terms &amp; Conditions.</span></label>
     <div class="modal-actions">
       <button id="cancelConfirm" class="secondary">Cancel</button>
-      <button id="confirmSelect" class="primary">Confirm allocation</button>
+      <button id="confirmSelect" class="primary" disabled>I Agree &amp; Confirm Selection</button>
     </div>
   </div>
 </div>

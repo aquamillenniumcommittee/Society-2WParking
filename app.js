@@ -81,15 +81,16 @@ function renderSlots(slots){
     $('slotList').appendChild(div);
   });
 }
-function openConfirm(slot){ selectedPending=slot; $('confirmSlot').textContent=slot; $('confirmModal').classList.remove('hidden'); }
-function closeConfirm(){ selectedPending=null; $('confirmModal').classList.add('hidden'); }
+function openConfirm(slot){ selectedPending=slot; $('confirmSlot').textContent=slot; $('agreeTerms').checked=false; $('confirmSelect').disabled=true; $('confirmModal').classList.remove('hidden'); }
+function closeConfirm(){ selectedPending=null; $('agreeTerms').checked=false; $('confirmSelect').disabled=true; $('confirmModal').classList.add('hidden'); }
 
 async function confirmSelection(){
   if(!selectedPending||!member) return;
   const btn=$('confirmSelect'); btn.disabled=true; btn.textContent='Allocating…';
   try{
     const sb=getClient();
-    const {data,error}=await sb.rpc('select_parking_slot',{p_flat:member.flat,p_code:member.code,p_slot:selectedPending});
+    if(!$('agreeTerms').checked){ alert('Please tick the agreement checkbox before confirming the slot.'); return; }
+    const {data,error}=await sb.rpc('select_parking_slot',{p_flat:member.flat,p_code:member.code,p_slot:selectedPending,p_agree:true});
     if(error) throw new Error(`Allocation error: ${error.message}`);
     if(!data?.ok) throw new Error(data?.message || 'Selection failed.');
     closeConfirm(); await refresh(); alert(`Allocation confirmed: ${data.slot}`);
@@ -105,6 +106,7 @@ $('loginForm').addEventListener('submit',async e=>{
 $('logoutBtn').onclick=logout;
 $('cancelConfirm').onclick=closeConfirm;
 $('confirmSelect').onclick=confirmSelection;
+$('agreeTerms').addEventListener('change',()=>{ $('confirmSelect').disabled=!$('agreeTerms').checked; });
 function startPolling(){stopPolling();poller=setInterval(()=>refresh().catch(err=>console.warn(err)),4000)}
 function stopPolling(){if(poller){clearInterval(poller);poller=null}}
 

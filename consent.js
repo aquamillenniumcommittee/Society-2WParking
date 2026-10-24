@@ -65,13 +65,20 @@
         p_code: memberCode
       });
 
-      if (error) throw error;
+     if (error) throw error;
 
-      if (!data || !data.pre_allocated_slot) {
-        throw new Error(
-          "These details could not be verified as a pre-allocated member. Please check your details or contact the committee."
-        );
-      }
+    if (!data || data.ok !== true) {
+      throw new Error(
+        (data && data.message) ||
+        "Your details could not be verified. Please check your flat number and access code."
+      );
+    }
+
+    if (!data.pre_allocated_slot) {
+      throw new Error(
+      "These details could not be verified as a pre-allocated member. Please contact the committee."
+      );
+    }
 
       verifiedMember = {
         flat: data.flat || flat,

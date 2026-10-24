@@ -1,0 +1,143 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preallocated Parking Consent Admin</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .consent-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .consent-stat {
+      padding: 18px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .consent-stat span { display: block; color: #555; }
+    .consent-stat strong { display: block; font-size: 1.8rem; margin-top: 8px; }
+    .consent-tools {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+    }
+    .consent-tools input, .consent-tools select {
+      padding: 10px;
+      max-width: 100%;
+    }
+    .consent-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+    .consent-table th, .consent-table td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .consent-table th { background: #f5f5f5; }
+    .consent-scroll { overflow-x: auto; }
+    .status-yes { color: #166534; font-weight: 700; }
+    .status-no { color: #b91c1c; font-weight: 700; }
+    #consentMsg { margin-top: 12px; }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="eyebrow">ADMIN</div>
+    <h1>Preallocated Parking Consent</h1>
+  </div>
+  <a class="admin-link" href="admin.html">Allocation Admin</a>
+</header>
+
+<main class="container">
+  <section id="consentLogin" class="card">
+    <h2>Admin login</h2>
+    <p class="muted">Sign in using your existing administrator email and password.</p>
+    <form id="consentLoginForm">
+      <label>Email
+        <input id="consentEmail" type="email" autocomplete="username" required>
+      </label>
+      <label>Password
+        <input id="consentPassword" type="password"
+          autocomplete="current-password" required>
+      </label>
+      <button class="primary" type="submit">Sign in</button>
+      <div id="consentMsg" class="message" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section id="consentDashboard" class="hidden">
+    <div class="hero">
+      <div>
+        <h2>Consent register</h2>
+        <p class="muted">Preallocated members only. Times are shown in IST.</p>
+      </div>
+      <div>
+        <button id="refreshConsent" class="secondary" type="button">Refresh</button>
+        <button id="exportConsent" class="secondary" type="button">Export CSV</button>
+        <button id="consentSignout" class="secondary" type="button">Sign out</button>
+      </div>
+    </div>
+
+    <div class="consent-stats">
+      <div class="consent-stat">
+        <span>Total preallocated</span>
+        <strong id="consentTotal">—</strong>
+      </div>
+      <div class="consent-stat">
+        <span>Consent received</span>
+        <strong id="consentAccepted">—</strong>
+      </div>
+      <div class="consent-stat">
+        <span>Pending</span>
+        <strong id="consentPending">—</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Member register</h2>
+      <div class="consent-tools">
+        <input id="consentSearch" type="search"
+          placeholder="Search flat or parking slot" aria-label="Search flat or slot">
+        <select id="consentFilter" aria-label="Filter consent status">
+          <option value="all">All members</option>
+          <option value="yes">Consent received</option>
+          <option value="no">Pending consent</option>
+        </select>
+      </div>
+      <p id="consentCount" class="muted"></p>
+      <div class="consent-scroll">
+        <table class="consent-table">
+          <thead>
+            <tr>
+              <th>Flat number</th>
+              <th>Preallocated slot</th>
+              <th>Consent status</th>
+              <th>Date (IST)</th>
+              <th>Time (IST)</th>
+              <th>Terms version</th>
+            </tr>
+          </thead>
+          <tbody id="consentRows">
+            <tr><td colspan="6">Sign in to load the register.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="consentDashboardMsg" class="message" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="consent-admin.js"></script>
+</body>
+</html>

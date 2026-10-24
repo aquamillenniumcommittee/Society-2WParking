@@ -23,7 +23,13 @@
 <div class="card">
 <div class="hero"><div><h2>Controls</h2><p class="muted">Pause before making corrections. Undo reverses the most recent member selection.</p></div><div><button id="pauseBtn" class="secondary">Pause</button> <button id="undoBtn" class="secondary">Undo last</button> <button id="signoutBtn" class="secondary">Sign out</button></div></div>
 </div>
-<div class="card"><h2>Allocation register</h2><div id="register" style="overflow:auto"></div></div>
+<div class="card">
+  <div class="hero">
+    <h2>Allocation register</h2>
+    <button id="exportAllocations" class="secondary" type="button">Export CSV</button>
+  </div>
+  <div id="register" style="overflow:auto"></div>
+</div>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="admin.js"></script>
